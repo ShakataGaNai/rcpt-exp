@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from escpos.printer import Network
-import qrcode
 from PIL import Image
 import time
 import os
@@ -12,14 +11,17 @@ def main():
         print("Connecting to printer at 10.23.22.96...")
         printer = Network("10.23.22.96")
         
+        # Reset to default settings
+        printer.set_with_default()
+
         # Print header
         printer.set(align='center')
         printer.text("RECEIPT PRINTER TEST\n")
         printer.text("Rongta RP326\n")
         printer.text("=" * 32 + "\n\n")
         
+        printer.set_with_default()
         # Basic text styles
-        printer.set(align='left')
         printer.text("BASIC TEXT STYLES\n")
         printer.text("-" * 32 + "\n")
         
@@ -29,34 +31,40 @@ def main():
         # Bold text
         printer.set(bold=True)
         printer.text("Bold text\n")
+        # Reset bold
         printer.set(bold=False)
         
         # Double height
         printer.set(double_height=True)
         printer.text("Double height\n")
-        printer.set(double_height=False)
+        printer.set_with_default() # set double_height=False does not work
+
         
         # Double width
         printer.set(double_width=True)
         printer.text("Double width\n")
-        printer.set(double_width=False)
-        
+        printer.set_with_default() # set double_width=False does not work
+
         # Underline
         printer.set(underline=1)
         printer.text("Underlined text\n")
         printer.set(underline=0)
+
         
-        # Inverted colors (if supported)
+        # Inverted colors
         try:
-            printer.set(text_type="B")
+            printer.set(invert=True)
             printer.text("Inverted colors\n")
-            printer.set(text_type="normal")
+            printer.set(invert=False)
         except:
-            printer.text("Inverted colors not supported\n")
+            printer.text("Inverted colors not supported\n\n")
         
         printer.text("\n")
         
         # Alignment demo
+        # Reset to default settings
+        printer.set_with_default()
+        
         printer.text("ALIGNMENT DEMO\n")
         printer.text("-" * 32 + "\n")
         
@@ -69,10 +77,14 @@ def main():
         printer.set(align='right')
         printer.text("Right aligned\n")
         
+        # Reset to left alignment
         printer.set(align='left')
         printer.text("\n")
         
         # Barcode demo
+        # Reset to default settings
+        printer.set_with_default()
+        
         printer.text("BARCODE DEMO\n")
         printer.text("-" * 32 + "\n")
         
@@ -82,10 +94,17 @@ def main():
         printer.text("\nCODE39: 123456789\n\n")
         
         # EAN13 barcode
+        printer.set(align='center')
         printer.barcode("5901234123457", "EAN13", height=100, width=2)
         printer.text("\nEAN13: 5901234123457\n\n")
         
-        printer.set(align='left')
+        # ISBN13 barcode
+        printer.set(align='center')
+        printer.barcode("9781520126241", "ISBN13", height=100, width=2)
+        printer.text("\nISBN13: 9781520126241\n\n")
+
+        # Reset to default settings
+        printer.set_with_default()
         
         # QR code demo
         printer.text("QR CODE DEMO\n")
@@ -94,6 +113,9 @@ def main():
         printer.set(align='center')
         printer.qr("https://github.com/python-escpos/python-escpos", size=8)
         printer.text("\nQR: python-escpos GitHub\n\n")
+        
+        # Reset to default settings
+        printer.set_with_default()
         
         # Image demo
         printer.text("IMAGE DEMO\n")
@@ -130,6 +152,9 @@ def main():
         except:
             pass
         
+        # Reset to default settings one more time
+        printer.set_with_default()
+        
         # Footer
         printer.set(align='center')
         printer.text("=" * 32 + "\n")
@@ -139,6 +164,9 @@ def main():
         
         # Cut paper
         printer.cut()
+        
+        # Final reset of printer settings
+        printer.set_with_default()
         
         print("Test completed successfully.")
         
